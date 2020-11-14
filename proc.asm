@@ -1,60 +1,77 @@
 .386
 .model flat,C
 
-qwer MACRO wrd, lenght, outputString
-
-	MOV ESI, wrd 
-	MOV EDI, outputString
-	MOV ECX, lenght
-
-	funcLoop:
-		MOV EDX, [ESI]
-		MOV [EDI], EDX
-		INC EDI
-		INC ESI
-	LOOP funcLoop
+qwer MACRO
+			INC ESI
+			MOV ECX, EDX
+			MOV EBX, EDX
+			funcLoop:
+				XOR EDX, EDX
+				MOV DL, [ESI]
+				MOV [EDI], DL
+				INC EDI
+				INC ESI
+				DEC SIZ
+			LOOP funcLoop
 ENDM
 
 .DATA
 	SIZ DD ?
+	SRTR DD ? 
+
 .CODE
 	func PROC
 		PUSH EBP
-		MOV EBX, [ESP+8] 
+		MOV EBP, ESP
+		MOV EBX, [EBP+8] 
 		MOV ESI, EBX     
-		MOV EBX, [ESP+12] 
+		MOV EBX, [EBP+12] 
 		MOV EDI, EBX	      
-		MOV EBX, [ESP+16] 
+		MOV EBX, [EBP+16] 
 		MOV SIZ, EBX       
-		MOV ESP, ESI
 
+
+		MOV SRTR, ESI
+		MOV SIZ, EBX
 		ADD ESI, EBX
 		XOR EDX, EDX
-		;DEC ESI
-		;INC EDX
+		DEC ESI
 
 		FUNC0:
-			MOV CL, 32
-			MOV CH, [ESI]
-			CMP CL, CH
+			XOR ECX, ECX
+			MOV AL, 32
+			MOV CL, [ESI]
+			CMP AL, CL
 			JE FUNC2
-			DEC ESI
+			MOV EAX, SRTR
 			INC EDX
+			DEC ESI
+			CMP ESI, EAX 
+			JE FUNC3
+			
+			
 		LOOP FUNC0
 
-		FUNC2:
-			INC ESI
-			qwer ESI,EDX,EDI 
-			SUB ESI, EDX
-			CMP ESI, ESP
-			JE EXIT
+		FUNC3:
+			INC EDX
 			DEC ESI
-			MOV ECX, 32
-			MOV [EDI], ECX
+		FUNC2:
+			qwer
+			MOV EDX, EBX
+			SUB ESI, EDX
+			DEC ESI
+			DEC ESI
+			XOR EAX, EAX
+			CMP SIZ, EAX
+			JE EXIT
+			XOR ECX, ECX
+			MOV CL, 32
+			MOV [EDI], CL
 			INC EDI
 			XOR EDX, EDX
+			DEC SIZ
 		LOOP FUNC0
-		EXIT:
+EXIT:
 		POP EBP
 		RET
 	func ENDP
